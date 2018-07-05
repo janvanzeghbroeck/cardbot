@@ -8,11 +8,11 @@ class Card: #for python 3 (object) is redundant
     # def __init__(self, rank, suit):
     #     self.rank = rank
     #     self.suit = suit
-    suit = attr.ib()
+    suit = attr.ib() #order here determines what gets compared first
     rank = attr.ib()
 
     @suit.validator
-    def is_suit(self, attribute, value):
+    def is_suit(self, attribute, value): #attributes is the attrs attribute values
         if not isinstance(value, Suit): raise ValueError()#is value a part of class Suit
 
     @rank.validator
