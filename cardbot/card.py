@@ -14,13 +14,14 @@ class Card:  # for python 3 (object) is redundant
     @suit.validator
     # attributes is the attrs attribute values
     def is_suit(self, attribute, value):
-        if not isinstance(value, Suit): raise ValueError()  # is value a part of class Suit
+        if not isinstance(value, Suit):
+            raise ValueError()  # is value a part of class Suit
 
     @rank.validator
     def is_rank(self, attribute, value):
-        if not isinstance(value, Rank): raise ValueError()  # is value a part of class Suit
+        if not isinstance(value, Rank):
+            raise ValueError()  # is value a part of class Suit
     # one space here
-
 
     # one space here
     def __str__(self):  # i am going to display this to user, repr = display to coder
