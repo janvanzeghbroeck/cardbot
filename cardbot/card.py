@@ -1,28 +1,29 @@
-from enum import IntEnum #sees them as ints instead of just unique values
+from enum import IntEnum  # sees them as ints instead of just unique values
 import attr
 
 
 # two spaces
-@attr.s
-class Card: #for python 3 (object) is redundant
+@attr.s(frozen=True)  # allows it to me hashable and immutable
+class Card:  # for python 3 (object) is redundant
     # def __init__(self, rank, suit):
     #     self.rank = rank
     #     self.suit = suit
-    suit = attr.ib() #order here determines what gets compared first
+    suit = attr.ib()  # order here determines what gets compared first
     rank = attr.ib()
 
     @suit.validator
-    def is_suit(self, attribute, value): #attributes is the attrs attribute values
-        if not isinstance(value, Suit): raise ValueError()#is value a part of class Suit
+    # attributes is the attrs attribute values
+    def is_suit(self, attribute, value):
+        if not isinstance(value, Suit): raise ValueError()  # is value a part of class Suit
 
     @rank.validator
     def is_rank(self, attribute, value):
-        if not isinstance(value, Rank): raise ValueError()#is value a part of class Suit
+        if not isinstance(value, Rank): raise ValueError()  # is value a part of class Suit
     # one space here
 
 
     # one space here
-    def __str__(self): # i am going to display this to user, repr = display to coder
+    def __str__(self):  # i am going to display this to user, repr = display to coder
         return 'the {} of {}s'.format(self.rank.name.title(), self.suit.name.title())
 
     # this exists
@@ -30,11 +31,14 @@ class Card: #for python 3 (object) is redundant
     # __eq__(self):
 
 # two spaces here
-class Suit(IntEnum):
+
+
+class Suit(IntEnum):  # the class itself is an iterable
     CLUB = 1
     DIAMOND = 2
     HEART = 3
     SPADE = 4
+
 
 class Rank(IntEnum):
     TWO = 2

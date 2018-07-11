@@ -5,10 +5,12 @@ name = "pypi"
 
 [packages]
 attrs = "*"
+"flake8" = "*"
 
 [dev-packages]
 ipython = "*"
 pytest = "*"
+ipdb = "*"
 
 [requires]
 python_version = "3.6"
