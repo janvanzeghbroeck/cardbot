@@ -8,6 +8,11 @@ class Deck:
         self.reset()
 
     def shuffle(self):
+        """Randomizes the order of the cards in place.
+
+        Returns:
+            None
+        """
         shuffle(self._cards)
 
     def draw(self):
