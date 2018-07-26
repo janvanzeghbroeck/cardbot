@@ -5,6 +5,7 @@ python:
 install:
   - pip install pipenv
   - pipenv install --dev
+
 # command to run tests and lint
 script:
   - flake8
