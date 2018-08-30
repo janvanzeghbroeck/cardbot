@@ -10,6 +10,7 @@ class Player:
     name = attr.ib()
     hand = attr.ib()
     points = attr.ib(default=0)
+    current_card = attr.ib(default=None)
 
     def play_card(self, suit, rank):
         try:
@@ -17,8 +18,8 @@ class Player:
         except ValueError:
             raise CardNotInHand()
 
-        return self.hand.pop(index)
-
+        self.current_card = self.hand.pop(index)
+        return self.current_card
 
 @attr.s()
 class CompPlayer:
