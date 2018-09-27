@@ -12,6 +12,10 @@ class Player:
     points = attr.ib(default=0)
     current_card = attr.ib(default=None)
 
+    def hand_string(self):
+        """A display friendly version of the player's hand."""
+        return '\n'.join([str(card).title() for card in sorted(self.hand)])
+
     def play_card(self, suit, rank):
         try:
             index = self.hand.index(Card(suit=suit, rank=rank))

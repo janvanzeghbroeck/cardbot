@@ -1,5 +1,5 @@
 from .game import Game
-from .controller import GameController
+from .game_display import GameDisplay
 
 
 

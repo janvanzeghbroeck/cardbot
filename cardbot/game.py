@@ -62,52 +62,39 @@ class Game:
             self.second_player = self.player1 if self.winner is self.player2 else self.player2
 
         self.winner = None
+
         return self.get_trump()
 
-    def give_points(self):
-        self.winner.points += 1
-        return self.winner.points
-
-    def give_cards(self):
-        # if cards in deck
-        self.winner.hand.append(self.trump)
-        not_winner = self.player1 if self.winner is self.player2 else self.player2
-        not_winner.hand.append(self.deck.draw())
-
-    def play_game(self, game_controller):
+    def play_game(self, game_dislay):
         for turn_number in range(TOTAL_TRICKS):
-            # game_controller.turn_starting(turn_number)
-            self.trick(game_controller)
+            self.trick(game_dislay)
 
     def printable_state(self):
-        print('Points: {}:{}, {}:{}'.format(self.player1.name, self.player1.points, self.player2.name, self.player2.points))
+        print('\nRound {}:\nPoints: {}:{}, {}:{}\n'.format(1+self.player1.points+self.player2.points, self.player1.name, self.player1.points, self.player2.name, self.player2.points))
 
-    def trick(self, game_controller):
+    def trick(self, game_dislay):
+        self.printable_state()
         trump = self.start_trick()
 
-        game_controller.game_has_set_trump(trump)  # tell controller what the trump is
+        game_dislay.game_has_set_trump(trump)  # tell controller what the trump is
 
-        # have the controller ask the players
-        print([str(c) for c in self.active_player.hand])
-        active_player_suit, active_player_rank = game_controller.get_active_player_card()
+        active_player_suit, active_player_rank = game_dislay.get_active_player_card(self.active_player)
         self.set_active_player_card(suit=active_player_suit, rank=active_player_rank)
 
-        print([str(c) for c in self.second_player.hand])
-        second_player_suit, second_player_rank = game_controller.get_second_player_card()
+        second_player_suit, second_player_rank = game_dislay.get_second_player_card(self.second_player)
         self.set_second_player_card(suit=second_player_suit, rank=second_player_rank)
 
-        winner = self.decide_winner()
-        winner.hand.append(trump)
-        # tell controller who the winner is
-        game_controller.game_has_chosen_winner(winner)
+        winner = self.decide_winner(trump)
 
-        # reveal trump
-        # active player plays card
-        # second player plays legal card
-        # decide winner
-            # give winner point
-            # give players new cards
-        # after x tricks, end game
+        if trump is not None:
+            winner.hand.append(trump) # winner gets the trump card
+            not_winner = self.player1 if winner is self.player2 else self.player2
+            not_winner.hand.append(self.deck.draw())  # loser gets mystery card
+
+        winner.points += 1  # give_points
+
+        # tell controller who the winner is
+        game_dislay.game_has_chosen_winner(winner)
 
     def set_active_player_card(self, suit, rank):
         self.active_player_card = self.active_player.play_card(suit=suit, rank=rank)
@@ -116,17 +103,13 @@ class Game:
         self.second_player_card = self.second_player.play_card(suit=suit, rank=rank)
 
     def get_trump(self):
-        self.trump = self.deck.draw()
-        return self.trump
+        if self.deck.has_cards():
+            trump = self.deck.draw()
+        else:
+            trump = None
+        return trump
 
-    def legal_play(self):
-        if self.active_player.current_card.suit == self.second_player.current_card.suit:
-            return True
-        if self.active_player.current_card.suit not in [card.suit for card in self.second_player.hand]:
-            return True
-        return False
-
-    def decide_winner(self):
+    def decide_winner(self, trump):
         # if they play the same suit
         if self.active_player.current_card.suit == self.second_player.current_card.suit:
 
@@ -139,7 +122,8 @@ class Game:
                 return self.winner
 
         # if the second player trumps
-        if self.second_player.current_card.suit == self.trump.suit:
+        # boolean short circuiting
+        if trump is not None and self.second_player.current_card.suit == trump.suit:
             self.winner = self.second_player
             return self.winner
 
@@ -147,28 +131,10 @@ class Game:
         self.winner = self.active_player
         return self.winner
 
-    # def decide_winner(self, active_player, active_player_card, second_player, second_player_card, trump_card):
-    #     """Return the player that wins."""
-    #     # second player follows suit
-    #     if active_player_card.suit == second_player_card.suit:
-    #         if active_player_card > second_player_card:
-    #             return self.active_player
-    #         else:
-    #             return self.second_player
-    #
-    #     # the active player cannot win via trumping, as the second player still has the opportunity to go first
-    #     # second player trumps
-    #     if second_player_card.suit == trump_card.suit:
-    #         return self.second_player
-    #
-    #     # second player plays a throw away card
-    #     return self.active_player
-    #
-    #
-    # def legal_play(self, active_player_card, second_player, second_player_card):
-    #     if active_player_card.suit == second_player_card.suit:
-    #         return True
-    #     # if doesn't follow suit, making sure they don't have that suit
-    #     if active_player_card.suit not in [card.suit for card in second_player.hand]:
-    #         return True
-    #     return False  # illegal play; didn't follow suit
+
+    def legal_play(self):  # not being called
+        if self.active_player.current_card.suit == self.second_player.current_card.suit:
+            return True
+        if self.active_player.current_card.suit not in [card.suit for card in self.second_player.hand]:
+            return True
+        return False
