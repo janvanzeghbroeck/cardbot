@@ -1,4 +1,5 @@
 from cardbot.player import Player
+from cardbot.card import Card
 from cardbot.deck import Deck
 
 
@@ -68,9 +69,27 @@ class Game:
     def play_game(self, game_dislay):
         for turn_number in range(TOTAL_TRICKS):
             self.trick(game_dislay)
+        self.end_game()
+
+    def end_game(self):
+        print('Game over')
+        print('Points: {}'.format(self.player_points()))
+        if self.player1.points == self.player2.points:
+            print('The two of you are of equal skillz!')
+        else:
+            if self.player1.points > self.player2.points:
+                winner = self.player1
+                loser = self.player2
+            else:
+                winner = self.player2
+                loser = self.player1
+            print('Congrats {}, you bested {}!'.format(winner.name, loser.name))
+
+    def player_points(self):
+        return '{}:{}, {}:{}'.format(self.player1.name, self.player1.points, self.player2.name, self.player2.points)
 
     def printable_state(self):
-        print('\nRound {}:\nPoints: {}:{}, {}:{}\n'.format(1+self.player1.points+self.player2.points, self.player1.name, self.player1.points, self.player2.name, self.player2.points))
+        print('\nRound {}:\nPoints: {}\n'.format(1+self.player1.points+self.player2.points, self.player_points()))
 
     def trick(self, game_dislay):
         self.printable_state()
@@ -78,11 +97,32 @@ class Game:
 
         game_dislay.game_has_set_trump(trump)  # tell controller what the trump is
 
-        active_player_suit, active_player_rank = game_dislay.get_active_player_card(self.active_player)
+        while True:
+            active_player_suit, active_player_rank = game_dislay.get_active_player_card(self.active_player)
+            if Card(active_player_suit, active_player_rank) in self.active_player.hand:
+                break
+            else:
+                print('That card is not in your hand dummy!\n')
+                print('TRY AGAIN!\n')
+
         self.set_active_player_card(suit=active_player_suit, rank=active_player_rank)
 
-        second_player_suit, second_player_rank = game_dislay.get_second_player_card(self.second_player)
-        self.set_second_player_card(suit=second_player_suit, rank=second_player_rank)
+        while True:
+            while True:
+                second_player_suit, second_player_rank = game_dislay.get_second_player_card(self.second_player)
+                if Card(second_player_suit, second_player_rank) in self.second_player.hand:
+                    break
+                else:
+                    print('That card is not in your hand dummy!\n')
+                    print('TRY AGAIN!\n')
+
+            self.set_second_player_card(suit=second_player_suit, rank=second_player_rank)
+
+            if self.legal_play():
+                break
+            else:
+                print('Bad job you can not do that! >:(')
+                self.second_player.hand.append(Card(suit=second_player_suit, rank=second_player_rank))
 
         winner = self.decide_winner(trump)
 
@@ -110,6 +150,7 @@ class Game:
         return trump
 
     def decide_winner(self, trump):
+        '''winner of the trick'''
         # if they play the same suit
         if self.active_player.current_card.suit == self.second_player.current_card.suit:
 
@@ -131,10 +172,9 @@ class Game:
         self.winner = self.active_player
         return self.winner
 
-
     def legal_play(self):  # not being called
         if self.active_player.current_card.suit == self.second_player.current_card.suit:
             return True
-        if self.active_player.current_card.suit not in [card.suit for card in self.second_player.hand]:
+        if self.active_player.current_card.suit not in {card.suit for card in self.second_player.hand}:
             return True
         return False
